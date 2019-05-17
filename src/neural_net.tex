@@ -1,0 +1,73 @@
+\documentclass[tikz]{standalone}
+\usepackage{fourier}
+\usetikzlibrary{arrows.meta,positioning,decorations.markings}
+
+\begin{document}
+% Gradient line style, inspired by https://tex.stackexchange.com/a/333427/175597
+\tikzset{gradientline/.style n args={3}{
+  postaction={
+  decorate,
+  decoration={
+  markings,
+  mark=between positions 0 and \pgfdecoratedpathlength step .4pt with {
+  \pgfmathsetmacro\myval{multiply(
+    divide(\pgfkeysvalueof{/pgf/decoration/mark info/distance from start}, \pgfdecoratedpathlength),
+    100)};
+  \pgfsetfillcolor{#3!\myval!#2};
+  \pgfpathcircle{\pgfpointorigin}{#1};
+  \pgfusepath{fill};}
+}}}}
+
+\newlength{\layersep}
+\setlength{\layersep}{2cm}
+
+\definecolor{lightRed}{rgb}{1.,.3,.3}
+\definecolor{lightBlue}{rgb}{.5,.5,1.}
+\definecolor{lightGreen}{rgb}{.2,1.,.2}
+
+\begin{tikzpicture}[
+  neuron/.style={circle,line width=.9pt,inner sep=0pt,minimum size=6mm},
+  input neuron/.style={neuron,draw=lightRed},
+  hidden neuron/.style={neuron,draw=lightBlue},
+  output neuron/.style={neuron,draw=lightGreen},
+  annot/.style={text centered},
+  arrow/.style={-{>[scale=2,length=1.5,width=2.5]}},
+]
+  % Input layer
+  \foreach \y in {1,...,3}{
+    \node[input neuron] (input\y) at (0,\y) {};
+    \draw[line cap=round,lightRed,arrow,line width=.8pt]
+      (input\y.west) ++(-14pt,0) -- +(12pt,0);
+  }
+
+  % Hidden layers
+  \foreach \y in {1,...,4}{
+    \node[hidden neuron,yshift=-5mm] (hidden1\y) at (\layersep+2mm,\y) {};
+    \node[hidden neuron,yshift=-5mm] (hidden2\y) at (2\layersep-2mm,\y) {};
+  }
+
+  % Output layer
+  \node[output neuron] (output) at (3\layersep, 2) {};
+  \draw[line cap=round,lightGreen,arrow,line width=.8pt]
+    (output.east) ++(2pt,0) -- +(12pt,0);
+
+  % Lines input -> 1st hidden
+  \foreach \source in {1,...,3}
+    \foreach \dest in {1,...,4}
+      \draw[lightRed,gradientline={.3pt}{lightRed}{lightBlue}] (input\source) -- (hidden1\dest);
+
+  % Lines 1st hidden -> 2nd hidden
+  \foreach \source in {1,...,4}
+    \foreach \dest in {1,...,4}
+      \draw[line width=.6pt,lightBlue] (hidden1\source) -- (hidden2\dest);
+
+  % Lines 2nd hidden -> output
+  \foreach \source in {1,...,4}
+    \draw[lightGreen,gradientline={.3pt}{lightBlue}{lightGreen}] (hidden2\source) -- (output);
+
+  % Annotations
+  \node[lightBlue!85!black,annot] (hidden_annot) at (1.5\layersep,4.3) {\small Couches cachées};
+  \node[lightRed!85!black,annot,left=.95\layersep of hidden_annot.center] {\small Couche d'entrée};
+  \node[lightGreen!85!black,annot,right=.95\layersep of hidden_annot.center] {\small Couche de sortie};
+\end{tikzpicture}
+\end{document}

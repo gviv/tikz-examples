@@ -31,13 +31,13 @@
   hidden neuron/.style={neuron,draw=lightBlue},
   output neuron/.style={neuron,draw=lightGreen},
   annot/.style={text centered},
-  arrow/.style={-{>[scale=2,length=1.5,width=2.5]}},
+  arrow/.tip={>[scale=2,length=1.5,width=2.5]},
+  every pin edge/.style={shorten <=2pt,line width=.8pt,line cap=round},
+  pin distance=14pt,
 ]
   % Input layer
   \foreach \y in {1,...,3}{
-    \node[input neuron] (input\y) at (0,\y) {};
-    \draw[line cap=round,lightRed,arrow,line width=.8pt]
-      (input\y.west) ++(-14pt,0) -- +(12pt,0);
+    \node[input neuron,pin={[pin edge={lightRed,{arrow}-}]left:}] (input\y) at (0,\y) {};
   }
 
   % Hidden layers
@@ -47,9 +47,7 @@
   }
 
   % Output layer
-  \node[output neuron] (output) at (3\layersep, 2) {};
-  \draw[line cap=round,lightGreen,arrow,line width=.8pt]
-    (output.east) ++(2pt,0) -- +(12pt,0);
+  \node[output neuron,pin={[pin edge={lightGreen,-{arrow}}]right:}] (output) at (3\layersep, 2) {};
 
   % Lines input -> 1st hidden
   \foreach \source in {1,...,3}
